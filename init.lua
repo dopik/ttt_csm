@@ -2,7 +2,7 @@
 
 --upvalues
 local active = false
-local host = false
+local ishost = false
 local timer = false
 local players = false
 local name = false
@@ -31,7 +31,7 @@ function client.show_form(form)
 end
 
 function client.join()
-	if host then
+	if ishost then
 		host.join(name)
 	else
 		send_msg("ttthost join " .. name)
@@ -39,7 +39,7 @@ function client.join()
 end
 
 function client.leave()
-	if host then
+	if ishost then
 		host.leave(name)
 	else
 		send_msg("ttthost leave " .. name)
@@ -48,7 +48,7 @@ end
 
 function client.die()
 	client.show_form("")
-	if host then
+	if ishost then
 		host.die(name)
 	else
 		send_msg("ttthost die " .. name)
@@ -198,7 +198,7 @@ minetest.register_on_connect(function()
 end)
 
 minetest.register_on_shutdown(function()
-	if host then
+	if ishost then
 		send_msg("ttt win 1")
 	else
 		send_msg("ttthost leave " .. name)
@@ -214,7 +214,7 @@ end)
 
 minetest.register_on_formspec_input(function(formname, fields)
 	if formname == "ttt_csm" then
-		if host then
+		if ishost then
 			host.chat(name .. " " .. fields.chat)
 		else
 			send_msg("ttthost chat " .. name .. " " .. fields.chat)
@@ -230,19 +230,19 @@ on_send(function(msg)
 	local ok, cmd, val = string.match(msg, "(ttt)%s(%S+)%s?(.*)")
 	if ok then
 		if cmd == "join" then
-			if host then
+			if ishost then
 				host.join(name)
 			else
 				client.join(name)
 			end
 		elseif cmd == "leave" then
-			if host then
+			if ishost then
 				host.leave(name)
 			else
 				client.leave(name)
 			end
 		elseif cmd == "chat" then
-			if host then
+			if ishost then
 				host.chat(name .. " " .. val)
 			else
 				client.chat(val)
@@ -253,7 +253,7 @@ on_send(function(msg)
 	
 	local ok, cmd, val = string.match(msg, "(ttthost)%s(%S+)%s?(.*)")
 	if ok then
-		if host then
+		if ishost then
 			if cmd == "start" then
 				host.start_match()
 			elseif cmd == "revive" then
@@ -306,7 +306,7 @@ on_receive(function(msg)
 	
 	local ok, cmd, val = string.match(msg, "(ttthost)%s(%S+)%s?(.*)")
 	if ok then
-		if host then
+		if ishost then
 			if cmd == "chat" then
 				host.chat(val)
 			elseif cmd == "die" then
@@ -327,20 +327,20 @@ end)
 
 minetest.register_chatcommand("ttt_host", {
 	func = function()
-		if host then
+		if ishost then
 			if active then
 				send_msg("ttt win 1")
 			end
 			players = false
 			timer = false
-			send_msg("TTT: " .. name .. "is now host")
-			display_msg("TTT: " .. name .. "is now host")
-			host = false
-		elseif not active then
-			host = true
-			players = {}
 			send_msg("TTT: " .. name .. "is no longer host")
 			display_msg("TTT: " .. name .. "is no longer host")
+			ishost = false
+		elseif not active then
+			ishost = true
+			players = {}
+			send_msg("TTT: " .. name .. "is now host")
+			display_msg("TTT: " .. name .. "is now host")
 		end
 	end
 })
