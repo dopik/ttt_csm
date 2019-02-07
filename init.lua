@@ -212,13 +212,17 @@ end)
 
 minetest.register_on_death(function()
 	if active then
-		send_msg("ttthost die " .. name)
+		if ishost then
+			host.die(name)
+		else
+			send_msg("ttthost die " .. name)
+		end
 		client.show_form("field[chat;Chat;]field_close_on_enter[chat;false]")
 	end
 end)
 
 minetest.register_on_formspec_input(function(formname, fields)
-	if formname == "ttt_csm" then
+	if formname == "ttt_csm" and fields and fields.chat then
 		if ishost then
 			host.chat(name .. " " .. fields.chat)
 		else
