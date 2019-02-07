@@ -24,7 +24,7 @@ math.randomseed(os.time())
 
 
 --clientfunctions
-client.revive = minetest.send_respawn()
+client.revive = minetest.send_respawn
 
 function client.show_form(form)
 	minetest.show_formspec("ttt_csm", form)
@@ -61,7 +61,7 @@ end
 
 function client.display_win(role)
 	role = tonumber(role)
-	display_msg("TTT: The " .. rolesPlural[role] .. "have won")
+	display_msg("TTT: The " .. rolesPlural[role] .. " have won")
 	active = false
 	client.revive()
 end
@@ -102,23 +102,23 @@ function host.chat(val)
 	local i = 2
 	for pn, role in pairs(players) do
 		if srole == 1 then
-			if players[pn] then
+			if players[pn] and players[pn] == 1 then
 				if pn == name then
 					display_msg("TTT: " .. msg)
-				else
-					msgs[i] = pn
-					i = i + 1
 				end
+				msgs[i] = pn
+				i = i + 1
 			end
 		elseif srole == 3 then
-			if players[pn] == 3 then
+			if players[pn] and players[pn] == 3 then
 				if pn == name then
 					display_msg("TTT: " .. msg)
-				else
-					msgs[i] = pn
-					i = i + 1
 				end
+				msgs[i] = pn
+				i = i + 1
 			end
+		else
+			return
 		end
 	end
 	send_msg("ttt chat " .. table.concat(msgs, " ") .. ";" .. msg)
@@ -126,9 +126,9 @@ end
 
 function host.check_win()
 	local c
-	for pn, role in pairs(players) do
-		c = c or role and tonumber(role) and role > 1 and role
-		if c and role and tonumber(role) and c ~= role then
+	for _,role in pairs(players) do
+		c = c or (role and role > 1 and role)
+		if c and role and role > 1 and c ~= role then
 			return
 		end
 	end
@@ -137,6 +137,7 @@ end
 
 function host.win(role)
 	timer = false
+	active = false
 	client.display_win(role)
 	send_msg("ttt win " .. role)
 end
@@ -179,6 +180,7 @@ function host.timer(dtime)
 		if timer - dtime <= time and timer > time then
 			client.display_time(time)
 			send_msg("ttt time " .. time)
+			timer = timer - dtime
 			return
 		end
 	end
@@ -186,6 +188,7 @@ function host.timer(dtime)
 	if timer - dtime <= 0 and timer > 0 then
 		client.display_win(2)
 		send_msg("ttt win 2")
+		timer = timer - dtime
 		return
 	end
 	
@@ -222,6 +225,12 @@ minetest.register_on_formspec_input(function(formname, fields)
 	end
 end)
 
+minetest.register_globalstep(function(dtime)
+	if ishost and active and timer then
+		host.timer(dtime)
+	end
+end)
+
 on_send(function(msg)
 	if not msg then
 		return
@@ -245,7 +254,7 @@ on_send(function(msg)
 			if ishost then
 				host.chat(name .. " " .. val)
 			else
-				client.chat(val)
+				send_msg("ttthost chat " .. name .. " " .. val)
 			end
 		end
 		return true
@@ -286,7 +295,7 @@ on_receive(function(msg)
 	local ok, cmd, val = string.match(msg, "(ttt)%s(%S+)%s?(.*)")
 	if ok then
 		if cmd == "chat" then
-			client.display_msg(val)
+			display_msg(val)
 		elseif cmd == "revive" and val and val == name then
 			client.revive()
 		elseif cmd == "win" then
@@ -312,9 +321,9 @@ on_receive(function(msg)
 			elseif cmd == "die" then
 				host.die(val)
 			elseif cmd == "leave" then
-				host.leave(name)
+				host.leave(val)
 			elseif cmd == "join" then
-				host.join(name)
+				host.join(val)
 			end
 		end
 		return true
@@ -333,14 +342,14 @@ minetest.register_chatcommand("ttt_host", {
 			end
 			players = false
 			timer = false
-			send_msg("TTT: " .. name .. "is no longer host")
-			display_msg("TTT: " .. name .. "is no longer host")
+			send_msg("TTT: " .. name .. " is no longer host")
+			display_msg("TTT: " .. name .. " is no longer host")
 			ishost = false
 		elseif not active then
 			ishost = true
 			players = {}
-			send_msg("TTT: " .. name .. "is now host")
-			display_msg("TTT: " .. name .. "is now host")
+			send_msg("TTT: " .. name .. " is now host")
+			display_msg("TTT: " .. name .. " is now host")
 		end
 	end
 })
