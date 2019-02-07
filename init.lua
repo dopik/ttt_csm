@@ -334,17 +334,19 @@ minetest.register_chatcommand("ttt_host", {
 			players = false
 			timer = false
 			send_msg("TTT: " .. name .. "is now host")
+			display_msg("TTT: " .. name .. "is now host")
 			host = false
 		elseif not active then
 			host = true
 			players = {}
 			send_msg("TTT: " .. name .. "is no longer host")
+			display_msg("TTT: " .. name .. "is no longer host")
 		end
 	end
 })
 
 minetest.register_chatcommand("ttt_debug", {
 	func = function()
-		send_msg(dump(players or {}))
+		display_msg(dump(players or {}))
 	end
 })
