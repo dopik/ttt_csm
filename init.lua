@@ -292,7 +292,7 @@ on_receive(function(msg)
 		elseif cmd == "win" then
 			client.display_win(val)
 		elseif cmd == "roles" then
-			for pn, role in string.gmatch(val, "(%S+)%s(%d+)%s?")
+			for pn, role in string.gmatch(val, "(%S+)%s(%d+)%s?") do
 				if pn == name then
 					client.show_role(role)
 					return true
@@ -324,3 +324,26 @@ on_receive(function(msg)
 		return true
 	end
 end)
+
+minetest.register_chatcommand("ttt_host", {
+	func = function()
+		if host then
+			if active then
+				send_msg("ttt win 1")
+			end
+			players = false
+			timer = false
+			send_msg("TTT: " .. name .. "is now host")
+		elseif not active then
+			host = true
+			players = {}
+			send_msg("TTT: " .. name .. "is no longer host")
+		end
+	end
+})
+
+minetest.register_chatcommand("ttt_debug", {
+	func = function()
+		send_msg(dump(players or {}))
+	end
+})
