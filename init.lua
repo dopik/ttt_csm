@@ -91,7 +91,9 @@ end
 
 function host.leave(name)
 	players[name] = nil
-	host.check_win()
+	if active then
+		host.check_win()
+	end
 end
 
 function host.chat(val)
@@ -132,7 +134,7 @@ function host.check_win()
 			return
 		end
 	end
-	host.win(c)
+	host.win(c or 1)
 end
 
 function host.win(role)
@@ -242,13 +244,13 @@ on_send(function(msg)
 			if ishost then
 				host.join(name)
 			else
-				client.join(name)
+				client.join()
 			end
 		elseif cmd == "leave" then
 			if ishost then
 				host.leave(name)
 			else
-				client.leave(name)
+				client.leave()
 			end
 		elseif cmd == "chat" then
 			if ishost then
@@ -295,7 +297,7 @@ on_receive(function(msg)
 	local ok, cmd, val = string.match(msg, "(ttt)%s(%S+)%s?(.*)")
 	if ok then
 		if cmd == "chat" then
-			display_msg(val)
+			client.chat(val)
 		elseif cmd == "revive" and val and val == name then
 			client.revive()
 		elseif cmd == "win" then
