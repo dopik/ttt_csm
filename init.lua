@@ -271,8 +271,8 @@ on_send(function(msg)
 		if ishost then
 			if cmd == "start" then
 				host.start_match()
-			elseif cmd == "revive" then
-				host.revive(val)
+			elseif cmd == "die" then
+				host.die(val)
 			elseif cmd == "win" then
 				host.win(val)
 			elseif cmd == "revive" then
