@@ -334,6 +334,7 @@ minetest.register_chatcommand("ttt_host", {
 			players = false
 			timer = false
 			send_msg("TTT: " .. name .. "is now host")
+			host = false
 		elseif not active then
 			host = true
 			players = {}
