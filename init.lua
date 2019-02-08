@@ -217,7 +217,7 @@ minetest.register_on_death(function()
 		else
 			send_msg("ttthost die " .. name)
 		end
-		client.show_form("field[chat;Chat;]field_close_on_enter[chat;false]")
+		client.show_form("field[chat;Chat;]")
 	end
 end)
 
@@ -228,6 +228,7 @@ minetest.register_on_formspec_input(function(formname, fields)
 		else
 			send_msg("ttthost chat " .. name .. " " .. fields.chat)
 		end
+		client.show_form("field[chat;Chat;]")
 	end
 end)
 
