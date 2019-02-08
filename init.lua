@@ -8,8 +8,8 @@ local players = false
 local name = false
 local times = {300, 240, 180, 120, 60, 30, 20, 10, 5, 4, 3, 2, 1}
 
-local roles = {"Dead", "Innocent", "Traitor"}
-local rolesPlural = {"Dead", "Innocent", "Traitors"}
+local roles = {"Dead", "\27(c@#0f0)Innocent\27(c@#fff)", "\27(c@#f00)Traitor\27(c@#fff)"}
+local rolesPlural = {"Dead", "\27(c@#0f0)Innocent\27(c@#fff)", "\27(c@#f00)Traitors\27(c@#0f0)"}
 
 local on_receive = minetest.register_on_receiving_chat_message or minetest.register_on_receiving_chat_messages
 local on_send = minetest.register_on_sending_chat_message or minetest.register_on_sending_chat_messages
