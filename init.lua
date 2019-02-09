@@ -9,12 +9,29 @@ local name = false
 local times = {300, 240, 180, 120, 60, 30, 20, 10, 5, 4, 3, 2, 1}
 
 local roles = {"Dead", "\27(c@#0f0)Innocent\27(c@#fff)", "\27(c@#f00)Traitor\27(c@#fff)"}
-local rolesPlural = {"Dead", "\27(c@#0f0)Innocent\27(c@#fff)", "\27(c@#f00)Traitors\27(c@#0f0)"}
+local rolesPlural = {"Dead", "\27(c@#0f0)Innocent\27(c@#fff)", "\27(c@#f00)Traitors\27(c@#fff)"}
 
 local on_receive = minetest.register_on_receiving_chat_message or minetest.register_on_receiving_chat_messages
 local on_send = minetest.register_on_sending_chat_message or minetest.register_on_sending_chat_messages
 local display_msg = minetest.display_chat_message
 local send_msg = minetest.send_chat_message
+
+local function shuffle(n, t)
+	local tbl = {}
+	for i = 1, n do
+		if i <= t then
+			tbl[i] = 3
+		else
+			tbl[i] = 2
+		end
+	end
+	
+	for i = n, 2, -1 do
+		local j = math.random(1, i)
+		tbl[i], tbl[j] = tbl[j], tbl[i]
+	end
+	return tbl
+end
 
 local client = {}
 local host = {}
@@ -111,6 +128,14 @@ function host.chat(val)
 				msgs[i] = pn
 				i = i + 1
 			end
+		elseif srole == 2 then
+			if players[pn] and players[pn] > 1 then
+				if pn == name then
+					display_msg("TTT: " .. msg)
+				end
+				msgs[i] = pn
+				i = i + 1
+			end
 		elseif srole == 3 then
 			if players[pn] and players[pn] == 3 then
 				if pn == name then
@@ -153,19 +178,19 @@ function host.start_match()
 	for _,_ in pairs(players) do
 		n = n + 1
 	end
-	n = math.random(1, n) - 1
 	
+	local roleDist = shuffle(n, math.ceil(n/5))
+		
 	local msgs = {"ttt roles"}
-	local i = 2
+	local i = 1
 	for pn,_ in pairs(players) do
-		players[pn] = (n == 0 and 3 or 2)
+		players[pn] = roleDist[i]
 		if pn == name then
-			client.show_role(n == 0 and 3 or 2)
+			client.show_role(roleDist[i])
 		else
-			msgs[i] = pn .. " " .. (n == 0 and 3 or 2)
-			i = i + 1
+			msgs[i] = pn .. " " .. roleDist[i]
 		end
-		n = n - 1
+		i = i + 1
 	end
 	
 	timer = 360
@@ -290,6 +315,11 @@ on_send(function(msg)
 	end
 	
 	if active then
+		if ishost then
+			host.chat(name .. " " .. val)
+		else
+			send_msg("ttthost chat " .. name .. " " .. val)
+		end
 		return true
 	end
 end)
