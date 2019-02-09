@@ -113,9 +113,9 @@ function host.leave(name)
 	end
 end
 
-function host.chat(val)
+function host.chat(val, all)
 	local sender, msg = string.match(val, "(%S+)%s(.*)")
-	local srole = tonumber(players[sender])
+	local srole = all and 2 or tonumber(players[sender])
 	
 	local msgs = {"ttt chat"}
 	local i = 2
@@ -316,9 +316,9 @@ on_send(function(msg)
 	
 	if active then
 		if ishost then
-			host.chat(name .. " " .. val)
+			host.chat(name .. " " .. val, true)
 		else
-			send_msg("ttthost chat " .. name .. " " .. val)
+			send_msg("ttthost chatall " .. name .. " " .. val)
 		end
 		return true
 	end
@@ -355,6 +355,8 @@ on_receive(function(msg)
 		if ishost then
 			if cmd == "chat" then
 				host.chat(val)
+			elseif cmd == "chatall" then
+				host.chat(val, true)
 			elseif cmd == "die" then
 				host.die(val)
 			elseif cmd == "leave" then
