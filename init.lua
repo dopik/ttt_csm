@@ -115,7 +115,8 @@ end
 
 function host.chat(val, all)
 	local sender, msg = string.match(val, "(%S+)%s(.*)")
-	local srole = all and 2 or tonumber(players[sender])
+	local srole = tonumber(players[sender])
+	srole = all and srole > 1 and 2 or srole
 	
 	local msgs = {"ttt chat"}
 	local i = 2
